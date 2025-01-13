@@ -4,24 +4,26 @@
 #include <time.h>
 
 // Wi-Fi credentials
-const char* ssid = "Zapisco";
-const char* password = "Zapisco2020@757!"; 
+const char *ssid = "xxxxxx";
+const char *password = "Your wifi paswword";
 
 // API details
-const char* serverUrl = "https://api.quantaflare.com/v1/Data/stream-push/5fe35eec-e18d-48cb-9604-cb7d6eb3cbb5";
-const char* apiKey = "CA1F89191C86485BA5C2B615024A54B1"; 
+const char *serverUrl = "https://api.quantaflare.com/v1/Data/stream-push/5fe35eec-e18d-48cb-9604-cb7d6eb3cbb5";
+const char *apiKey = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
 
 // NTP Server settings
-const char* ntpServer = "pool.ntp.org";
-const long  gmtOffset_sec = 0;
-const int   daylightOffset_sec = 0;
+const char *ntpServer = "pool.ntp.org";
+const long gmtOffset_sec = 0;
+const int daylightOffset_sec = 0;
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
@@ -32,29 +34,35 @@ void setup() {
 }
 
 // Get current time in milliseconds
-unsigned long long getTimeInMillis() {
+unsigned long long getTimeInMillis()
+{
   struct timeval tv;
   gettimeofday(&tv, NULL);
   return (unsigned long long)(tv.tv_sec) * 1000LL + (tv.tv_usec / 1000LL);
 }
 
 // Generate a random State of Charge (SOC) value between 0 and 100
-float generateSOC() {
-  return random(0, 10001) / 100.0;  // Generates a value between 0.00 and 100.00
+float generateSOC()
+{
+  return random(0, 10001) / 100.0; // Generates a value between 0.00 and 100.00
 }
 
 // Generate a random voltage value between 22.00 and 25.00
-float generateVoltage() {
+float generateVoltage()
+{
   return random(2200, 2501) / 100.0;
 }
 
 // Generate a random current value between 5.00 and 15.00
-float generateCurrent() {
+float generateCurrent()
+{
   return random(500, 1501) / 100.0;
 }
 
-void loop() {
-  if (WiFi.status() == WL_CONNECTED) {
+void loop()
+{
+  if (WiFi.status() == WL_CONNECTED)
+  {
     HTTPClient http;
 
     http.begin(serverUrl);
@@ -65,8 +73,8 @@ void loop() {
     StaticJsonDocument<256> doc;
     JsonArray root = doc.to<JsonArray>();
 
-    root.add(getTimeInMillis());  // Timestamp in milliseconds
-    root.add(1);                  // Static number
+    root.add(getTimeInMillis()); // Timestamp in milliseconds
+    root.add(1);                 // Static number
 
     JsonArray staticArray = root.createNestedArray();
     staticArray.add(1);
@@ -85,20 +93,25 @@ void loop() {
 
     int httpResponseCode = http.POST(jsonString);
 
-    if (httpResponseCode > 0) {
+    if (httpResponseCode > 0)
+    {
       String response = http.getString();
       Serial.println("HTTP Response code: " + String(httpResponseCode));
       Serial.println("Response body: " + response);
-    } else {
+    }
+    else
+    {
       Serial.print("Error on sending POST: ");
       Serial.println(httpResponseCode);
       Serial.println("Error: " + http.errorToString(httpResponseCode));
     }
 
     http.end();
-  } else {
+  }
+  else
+  {
     Serial.println("WiFi not connected");
   }
 
-  delay(7000);  // Wait for 7 seconds before sending the next payload
+  delay(7000); // Wait for 7 seconds before sending the next payload
 }
